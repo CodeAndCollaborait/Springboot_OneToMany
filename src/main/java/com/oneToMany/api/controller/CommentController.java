@@ -31,8 +31,12 @@ public class CommentController {
   }
   
   //Post Method for Comments.. only insert comment if post id exists
+  // One Post ID can have multiple comments..
+  
   @PostMapping("/posts/{postId}/comments")
-  public Comment createComment(@PathVariable(value = "postId") Long id, @RequestBody Comment comment) throws ApiException {
+  public Comment createComment
+		  (@PathVariable(value = "postId") Long id, @RequestBody Comment comment)
+		  throws ApiException {
 	
 	return postRepository.findById(id).map(post -> {
 	  comment.setPost(post);
@@ -40,7 +44,35 @@ public class CommentController {
 	}).orElseThrow(() -> new ApiException("PostID" + id + "Not Found!"));
   }
   
+  //Put and Delete.
+  //Update Comments... postID (there is post) .. Comment ID...body.. new text comment
   
+  @PutMapping("/posts/{postId}/comments/{commentId}")
+  public Comment updateComment(
+		  @PathVariable(value = "postId") Long postId,
+		  @PathVariable(value = "commentId") Long commentId,
+		  @RequestBody Comment commentUpdated) throws ApiException {
+	
+	//if there is no postId .. do not want update comments..
+	if (!postRepository.existsById(postId)) {
+	  throw new ApiException("PostID" + postId + "Not Found and so can not update comments");
+	}
+	
+	return commentRepository.findById(commentId).map(comment -> {
+	  comment.setText(commentUpdated.getText());
+	  return commentRepository.save(comment);
+	}).orElseThrow(() -> new ApiException("Comment ID " + commentId + "Not Found. "));
+  }
+  
+  @DeleteMapping("/posts/{postId}/comments/{commentId}")
+  public ResponseEntity<?> deleteCommnet(@PathVariable(value = "postId") Long postId,
+										 @PathVariable(value = "commentId") Long commentId) throws ApiException {
+	return commentRepository.findByIdAndPostId(commentId, postId).map(comment -> {
+	  commentRepository.delete(comment);
+	  return ResponseEntity.ok().build();
+	}).orElseThrow(() -> new ApiException("Comment can not delete " + commentId));
+	
+  }
   
   
 }
