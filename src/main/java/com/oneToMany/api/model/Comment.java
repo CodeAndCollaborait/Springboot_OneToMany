@@ -14,7 +14,7 @@ public class Comment extends AuditModel {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
   
-  @Lob
+  
   @Column(nullable = false)
   private  String text;
   

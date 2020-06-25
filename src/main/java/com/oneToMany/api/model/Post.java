@@ -17,7 +17,7 @@ public class Post extends AuditModel {
   @Column(unique = true, nullable = false)
   private String description;
   
-  @Lob
+  
   @Column(nullable = false)
   private String content;
   
